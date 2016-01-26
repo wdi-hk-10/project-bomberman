@@ -11,7 +11,7 @@ var Binding = function () {
   this["20"] = {player: "p2", action: "bomb", active: false}
 }
 
-var setup = [
+setup = [
   ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
   ['R','p1',null,null,null,null,null,null,null,null,null,null,null,null,'R'],
   ['R',null,'R',null,'R',null,'R',null,'R',null,'R',null,'R',null,'R'],
@@ -24,7 +24,7 @@ var setup = [
   ['R',null,null,null,null,null,null,null,null,null,null,null,null,null,'R'],
   ['R',null,'R',null,'R',null,'R',null,'R',null,'R',null,'R',null,'R'],
   ['R',null,null,null,null,null,null,null,null,null,null,null,null,null,'R'],
-  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
+  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R']
 ];
 
 
@@ -42,8 +42,8 @@ $(document).ready(function() {
         column: 1
       },
       newPos: {
-        row: 1,
-        column: 1
+        row: null,
+        column: null
       }
     }
   }
@@ -75,53 +75,80 @@ $(document).ready(function() {
     playerL = $player.position().left - playerObject.defaultLeft + 40;
     playerR = playerObject.originPos.row;
     playerC = playerObject.originPos.column;
-    // check if there is only 1 pos
-      if (action=="left"){
-        //if player's left-most position is right of (col-1) right-most position
-        if (playerL > (((playerC - 1) * 40)+ 40)){
-          var newPos = $player.position().left - 1;
-          $player.css("left", newPos + "px");
-        //if (col - 1) of player is NOT a rock,
-        } else if (setup[playerR][playerC-1] !== "R"){
-          var newPos = $player.position().left - 1;
-          $player.css("left", newPos + "px");
-        }
+    var counts = {};
+    for (var i = 0; i < setup.length; i++){
+      for (var j = 0; j < setup[i].length; j++){
+        var num = setup[i][j];
+        counts[num] = counts[num] ? counts[num]+1 : 1;
+        if (counts['p1'] == 1){ //playerObject and playerName do not work ...
+          if (action=="left"){
+            //if player's left-most position is right of (col-1) right-most position
+            if (playerL > (((playerC - 1) * 40)+ 40)){
+              var newPos = $player.position().left - 1;
+              $player.css("left", newPos + "px");
+            //if (col - 1) of player is NOT a rock,
+            } else if (setup[playerR][playerC-1] !== "R"){
+              var newPos = $player.position().left - 1;
+              $player.css("left", newPos + "px");
+              playerObject.newPos.row = playerR;
+              playerObject.newPos.column = playerC - 1;
+            }
+          }
+          if (action=="right"){
+            //if player's right-most position is left of its right-most cell position
+            if ((playerL+36) <= ((playerC * 40) + 40)){
+              console.log()
+              var newPos = $player.position().left + 1;
+              $player.css("left", newPos + "px");
+            //if (col + 1) of player is NOT a rock,
+            } else if (setup[playerR][playerC+1] !== "R"){
+              var newPos = $player.position().left + 1;
+              $player.css("left", newPos + "px");
+              playerObject.newPos.row = playerR;
+              playerObject.newPos.column = playerC + 1;
+            }
+          }
+          if (action=="up"){
+            //if player's upper-most position is below the bottom of (row-1) cell position
+            if (playerT > (((playerR - 1) * 40) + 40)){
+              var newPos = $player.position().top - 1;
+              $player.css("top", newPos + "px");
+            //if (row - 1) of player is NOT a rock,
+            } else if (setup[playerR-1][playerC] !== "R") {
+              var newPos = $player.position().top - 1;
+              $player.css("top", newPos + "px");
+              playerObject.newPos.row = playerR - 1;
+              playerObject.newPos.column = playerC;
+              var newRow = playerObject.newPos.row;
+              var newColumn = playerObject.newPos.column;
+              setup[newRow][newColumn] = 'p1';
+            }
+          }
+          if (action=="down"){
+            //if player's bottom-most position is above/equal to the bottom of its cell position
+            if ((playerT + 36) <= ((playerR * 40) + 40)){
+            var newPos = $player.position().top + 1;
+            $player.css("top", newPos + "px");
+            //if (row+1) of player is NOT a rock,
+            } else if (setup[playerR+1][playerC] !== "R") {
+              var newPos = $player.position().top + 1;
+              $player.css("top", newPos + "px");
+              playerObject.newPos.row = playerR + 1;
+              playerObject.newPos.column = playerC;
+            }
+          }
+        } else if (counts[$player]==2){ //if player is on 2 positions, create a new position
+          if (action=="left"){
+            //
+          }
+
+
+
       }
-      if (action=="right"){
-        //if player's right-most position is left of its right-most cell position
-        if ((playerL+36) <= ((playerC * 40) + 40)){
-          var newPos = $player.position().left + 1;
-          $player.css("left", newPos + "px");
-        //if (col + 1) of player is NOT a rock,
-        } else if (setup[playerR][playerC+1] !== "R"){
-          var newPos = $player.position().left + 1;
-          $player.css("left", newPos + "px");
         }
-      }
-      if (action=="up"){
-        //if player's upper-most position is below the bottom of (row-1) cell position
-        if (playerT > (((playerR - 1) * 40) + 40)){
-          var newPos = $player.position().top - 1;
-          $player.css("top", newPos + "px");
-        //if (row - 1) of player is NOT a rock,
-        } else if (setup[playerR-1][playerC] !== "R") {
-          var newPos = $player.position().top - 1;
-          $player.css("top", newPos + "px");
-        }
-      }
-      if (action=="down"){
-        //if player's bottom-most position is above/equal to the bottom of its cell position
-        if ((playerT + 36) <= ((playerR * 40) + 40)){
-        var newPos = $player.position().top + 1;
-        $player.css("top", newPos + "px");
-        //if (row+1) of player is NOT a rock,
-        } else if (setup[playerR+1][playerC] !== "R") {
-          var newPos = $player.position().top + 1;
-          $player.css("top", newPos + "px");
-        }
+    }
       }
     // check if there is 2 pos
-  }
 
   var gameLoop = function () {
     for (var key in bindings) {
