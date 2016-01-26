@@ -1,21 +1,38 @@
-#game-screen {
-  margin: 0 auto;
-  height: 800px;
-  width: 800px;
+body {
+  background: black;
 }
+
+#title {
+  text-align: center;
+  margin: 20px auto;
+  font-family: 'Chewy', cursive;
+  font-size: 50px;
+  color: white;
+}
+
+#game-screen {
+  margin: 10px auto;
+  height: 640px;
+  width: 640px;
+}
+
+
 
 .row {
-  background-color: blue;
   padding: 0;
   margin: 0;
 }
 
-.column {
-  position: relative;
-  background-color: red;
-  width: 50px;
+.col {
+  background-color: #529E60;
+  width: 40px;
   display: inline-block;
-  height: 50px;
+  height: 40px;
   padding: 0;
   margin: 0;
+  border-spacing: 0;
+}
+
+.rock {
+  background-color: #4D4F4E;
 }
