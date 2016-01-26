@@ -12,8 +12,8 @@ body {
 
 #game-screen {
   margin: 10px auto;
-  height: 640px;
-  width: 640px;
+  height: 520px;
+  width: 600px;
 }
 
 .character {
