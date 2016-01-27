@@ -31,11 +31,12 @@ var BombObject = function(row, column, power, p, P) {
     var timeout = setTimeout(function(){
       console.log("test");
       console.log(bombRow, bombColumn)
-      $('tr').eq(bombRow).find('td').eq(bombColumn).removeClass('bomb');
-      p.availableBombs++;
       killSurrounding();
+      $('tr').eq(bombRow).find('td').eq(bombColumn).removeClass('bomb');
+      setup[bombRow][bombColumn] = null;
+      p.availableBombs++;
       clearTimeout(timeout);
-    }, 1000)
+    }, 3000)
   };
 
   this.explode();
