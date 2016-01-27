@@ -1,5 +1,7 @@
+var debug;
 var gridSize   = 40;
 var playerSize = 34;
+
 var Binding = function () {
   this["76"]  = {player: "p1", action: "left", active: false};
   this["80"]  = {player: "p1", action: "up", active: false};
@@ -12,6 +14,32 @@ var Binding = function () {
   this["83"]  = {player: "p2", action: "down", active: false};
   this["20"]  = {player: "p2", action: "bomb", active: false};
 };
+
+var BombObject = function(row, column, power, p, P) {
+  this.blastRadius = power;
+  this.bombRow = row;
+  this.bombColumn = column;
+  this.killSurrounding = function () {
+    for (var key in P) {
+      console.log(key)
+    }
+  };
+  this.explode = function () {
+    var bombRow = this.bombRow;
+    var bombColumn = this.bombColumn;
+    var killSurrounding = this.killSurrounding;
+    var timeout = setTimeout(function(){
+      console.log("test");
+      console.log(bombRow, bombColumn)
+      $('tr').eq(bombRow).find('td').eq(bombColumn).removeClass('bomb');
+      p.availableBombs++;
+      killSurrounding();
+      clearTimeout(timeout);
+    }, 1000)
+  };
+
+  this.explode();
+}
 
 var setup = [
   ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
@@ -44,9 +72,12 @@ $(document).ready(function() {
         column: 1
       },
       newPos: null,
-      availableBombs: 1
+      availableBombs: 1,
+      blastRadius: 1
     }
   };
+
+  var bombsArr = [];
 
   var onKeyDown = function(event) {
     var action = bindings[event.keyCode] ? bindings[event.keyCode].action : undefined;
@@ -121,13 +152,20 @@ $(document).ready(function() {
     updatePlayerPos(p);
 
     if (action =="bomb" && p.availableBombs > 0){
+
       var plantBombOrigin = function() {
+        var newBomb = new BombObject(p.originPos.row, p.originPos.column, p.blastRadius, p, players);
+        bombsArr.push(newBomb);
+        debug = bombsArr
         console.log('planting bomb at original block');
         console.log (p.playerR,p.playerC);
         setup[p.originPos.row][p.originPos.column] = "B";
         $('tr').eq(p.playerR).find('td').eq(p.playerC).addClass('bomb');
       }
       var plantBombNew = function() {
+        var newBomb = new BombObject(p.newPos.row, p.newPos.column, p.blastRadius, p, players);
+        bombsArr.push(newBomb);
+        debug = bombsArr
         console.log('planting bomb at new block')
         setup[p.newPos.row][p.newPos.column] = "B";
         $('tr').eq(p.newPlayerR).find('td').eq(p.newPlayerC).addClass('bomb');
