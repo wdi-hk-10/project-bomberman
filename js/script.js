@@ -43,7 +43,8 @@ $(document).ready(function() {
         row: 1,
         column: 1
       },
-      newPos: null
+      newPos: null,
+      availableBombs: 1
     }
   };
 
@@ -69,7 +70,6 @@ $(document).ready(function() {
   $(document).on("keyup", onKeyUp);
 
   var addNewPos = function (p, newRow, newColumn) {
-    setup[newRow][newColumn] = p.name;
     p.newPos = {
       row: newRow,
       column: newColumn
@@ -83,11 +83,9 @@ $(document).ready(function() {
     var newColumn      = p.newPos.column;
 
     if (p.playerTopBorder >= p.blockTopBorder && p.playerRightBorder <= p.blockRightBorder && p.playerBotBorder <= p.blockBotBorder && p.playerLeftBorder >= p.blockLeftBorder) {
-      setup[newRow][newColumn] = null;
       p.newPos = null;
     }
     else if (p.playerTopBorder >= p.newBlockTopBorder && p.playerRightBorder <= p.newBlockRightBorder && p.playerBotBorder <= p.newBlockBotBorder && p.playerLeftBorder >= p.newBlockLeftBorder) {
-      setup[originalRow][originalColumn] = null;
       p.originPos.row = newRow;
       p.originPos.column = newColumn;
       p.newPos = null;
@@ -122,8 +120,38 @@ $(document).ready(function() {
   var movePlayer = function (p, action) {
     updatePlayerPos(p);
 
+    if (action =="bomb" && p.availableBombs > 0){
+      var plantBombOrigin = function() {
+        console.log('planting bomb at original block');
+        console.log (p.playerR,p.playerC);
+        setup[p.originPos.row][p.originPos.column] = "B";
+        $('tr').eq(p.playerR).find('td').eq(p.playerC).addClass('bomb');
+      }
+      var plantBombNew = function() {
+        console.log('planting bomb at new block')
+        setup[p.newPos.row][p.newPos.column] = "B";
+        $('tr').eq(p.newPlayerR).find('td').eq(p.newPlayerC).addClass('bomb');
+      }
+
+      if (p.playerInTransit){
+        if (p.newPlayerC!==p.playerC) {
+          if (Math.abs(p.playerLeftBorder - p.blockRightBorder) > Math.abs(p.playerLeftBorder - p.blockLeftBorder)) {
+            plantBombOrigin();
+          } else plantBombNew();
+        }
+        else if (Math.abs(p.playerTopBorder - p.blockBotBorder) > Math.abs(p.playerTopBorder - p.blockTopBorder)) {
+          plantBombOrigin();
+        }
+        else {
+          plantBombNew();
+        }
+      } else plantBombOrigin();
+      p.availableBombs--;
+      console.log(setup)
+    }
+
     if (action == "left"){
-      currentBlockRockValidator = setup[p.playerR][p.playerC - 1] !== "R";
+      currentBlockRockValidator = ((setup[p.playerR][p.playerC - 1]!=="R") && (setup[p.playerR][p.playerC - 1]!=="B"));
 
       if (p.playerInTransit) {
         if (p.playerLeftBorder > p.blockLeftBorder || p.playerLeftBorder > p.newBlockLeftBorder) {
@@ -143,7 +171,7 @@ $(document).ready(function() {
     }
 
     if (action == "right"){
-      currentBlockRockValidator = setup[p.playerR][p.playerC + 1] !== "R";
+      currentBlockRockValidator = (setup[p.playerR][p.playerC + 1]!== "R" && setup[p.playerR][p.playerC + 1]!=="B");
 
       if (p.playerInTransit) {
         if (p.playerRightBorder < p.blockRightBorder || p.playerRightBorder < p.newBlockRightBorder) {
@@ -163,7 +191,9 @@ $(document).ready(function() {
     }
 
     if (action == "up"){
-      currentBlockRockValidator = setup[p.playerR - 1][p.playerC] !== "R";
+      currentBlockRockValidator = (setup[p.playerR - 1][p.playerC] !== "R" && setup[p.playerR - 1][p.playerC] !== "B");
+      console.log(setup[p.playerR - 1][p.playerC] !== "R", setup[p.playerR - 1][p.playerC] !== "B")
+      console.log(setup);
 
       if (p.playerInTransit) {
         if (p.playerTopBorder > p.blockTopBorder || p.playerTopBorder > p.newBlockTopBorder) {
@@ -183,7 +213,7 @@ $(document).ready(function() {
     }
 
     if (action == "down"){
-      currentBlockRockValidator = setup[p.playerR + 1][p.playerC] !== "R";
+      currentBlockRockValidator = (setup[p.playerR + 1][p.playerC]!=="R" && setup[p.playerR + 1][p.playerC]!=="B");
 
       if (p.playerInTransit) {
         if (p.playerBotBorder < p.blockBotBorder || p.playerBotBorder < p.newBlockBotBorder) {
@@ -201,10 +231,6 @@ $(document).ready(function() {
         }
       }
     }
-
-    if (action == "bomb"){
-      console.log ("drop bomb")
-    }
   };
 
   var gameLoop = function () {
@@ -218,7 +244,7 @@ $(document).ready(function() {
       }
     }
   };
-  setInterval(gameLoop, 10);
+  setInterval(gameLoop, 16);
 });
 
     // if (action == "right"){

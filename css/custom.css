@@ -39,6 +39,10 @@ body {
   border-spacing: 0;
 }
 
+.bomb {
+  background-color: black;
+}
+
 .rock {
   background-color: #4D4F4E;
 }
