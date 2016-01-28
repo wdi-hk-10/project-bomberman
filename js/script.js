@@ -1,6 +1,6 @@
 var debug;
 var gridSize   = 40;
-var playerSize = 34;
+var playerSize = 32;
 
 var Binding = function () {
   this["76"]  = {player: "p1", action: "left", active: false};
@@ -12,35 +12,52 @@ var Binding = function () {
   this["87"]  = {player: "p2", action: "up", active: false};
   this["68"]  = {player: "p2", action: "right", active: false};
   this["83"]  = {player: "p2", action: "down", active: false};
-  this["20"]  = {player: "p2", action: "bomb", active: false};
+  this["17"]  = {player: "p2", action: "bomb", active: false};
 };
 
-var BombObject = function(row, column, power, p, P) {
+var BombObject = function(row, column, power, P, playerName) {
   this.blastRadius = power;
   this.bombRow = row;
   this.bombColumn = column;
   this.killSurrounding = function () {
+    // check the P to see whether the player original and new position is within the blast zone
     for (var key in P) {
-      console.log(key)
+      var killPlayer = this.checkPlayerPos(P[key].originPos) || this.checkPlayerPos(P[key].newPos) || false;
+      if (killPlayer){
+        // add animation for background using jquery...
+        // when animation is complete
+        // remove player element
+        // end game
+        P[key].elem.remove();
+      }
+    }
+    // check bomb surrounding inside setup to destroy "W" but ignore "R"
+  };
+  this.checkPlayerPos = function (pos) {
+    if (pos) {
+      // if row is same, check column+1, return true, vice versa
+      // if (playeriswithin){
+      //   return true
+      // } else {
+      //   return false
+      // }
+    } else {
+      return false;
     }
   };
   this.explode = function () {
-    var bombRow = this.bombRow;
-    var bombColumn = this.bombColumn;
-    var killSurrounding = this.killSurrounding;
+    var bombObj = this;
     var timeout = setTimeout(function(){
-      console.log("test");
-      console.log(bombRow, bombColumn)
-      killSurrounding();
-      $('tr').eq(bombRow).find('td').eq(bombColumn).removeClass('bomb');
-      setup[bombRow][bombColumn] = null;
-      p.availableBombs++;
+      bombObj.killSurrounding();
+      $('tr').eq(bombObj.bombRow).find('td').eq(bombObj.bombColumn).removeClass('bomb');
+      setup[bombObj.bombRow][bombObj.bombColumn] = null;
+      P[playerName].availableBombs++;
       clearTimeout(timeout);
     }, 3000)
   };
 
   this.explode();
-}
+};
 
 var setup = [
   ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
@@ -68,6 +85,8 @@ $(document).ready(function() {
       elem: $('#player1'),
       defaultTop: $('#player1').position().top,
       defaultLeft: $('#player1').position().left,
+      defaultOffsetTop: gridSize,
+      defaultOffsetLeft: gridSize,
       originPos: {
         row: 1,
         column: 1
@@ -75,10 +94,23 @@ $(document).ready(function() {
       newPos: null,
       availableBombs: 1,
       blastRadius: 1
+    },
+    p2: {
+      name: 'p2',
+      elem: $('#player2'),
+      defaultTop: $('#player2').position().top,
+      defaultLeft: $('#player2').position().left,
+      defaultOffsetTop: gridSize * 11,
+      defaultOffsetLeft: gridSize * 13,
+      originPos: {
+        row: 11,
+        column: 13
+      },
+      newPos: null,
+      availableBombs: 1,
+      blastRadius: 1
     }
   };
-
-  var bombsArr = [];
 
   var onKeyDown = function(event) {
     var action = bindings[event.keyCode] ? bindings[event.keyCode].action : undefined;
@@ -132,10 +164,10 @@ $(document).ready(function() {
     p.playerR    = p.originPos.row;
     p.playerWindowX = p.elem.position().left;
     p.playerWindowY = p.elem.position().top;
-    p.playerLeftBorder  = p.playerWindowX - p.defaultLeft + gridSize;
-    p.playerRightBorder = p.playerWindowX - p.defaultLeft + gridSize + playerSize;
-    p.playerTopBorder   = p.playerWindowY - p.defaultTop + gridSize;
-    p.playerBotBorder   = p.playerWindowY - p.defaultTop + gridSize + playerSize;
+    p.playerLeftBorder  = p.playerWindowX - p.defaultLeft + p.defaultOffsetLeft;
+    p.playerRightBorder = p.playerWindowX - p.defaultLeft + p.defaultOffsetLeft + playerSize;
+    p.playerTopBorder   = p.playerWindowY - p.defaultTop + p.defaultOffsetTop;
+    p.playerBotBorder   = p.playerWindowY - p.defaultTop + p.defaultOffsetTop + playerSize;
     p.blockLeftBorder  = ((p.playerC - 1) * gridSize) + gridSize;
     p.blockRightBorder = (p.playerC * gridSize) + gridSize;
     p.blockTopBorder   = ((p.playerR - 1) * gridSize) + gridSize;
@@ -155,19 +187,12 @@ $(document).ready(function() {
     if (action =="bomb" && p.availableBombs > 0){
 
       var plantBombOrigin = function() {
-        var newBomb = new BombObject(p.originPos.row, p.originPos.column, p.blastRadius, p, players);
-        bombsArr.push(newBomb);
-        debug = bombsArr
-        console.log('planting bomb at original block');
-        console.log (p.playerR,p.playerC);
+        var newBomb = new BombObject(p.originPos.row, p.originPos.column, p.blastRadius, players, p.name);
         setup[p.originPos.row][p.originPos.column] = "B";
         $('tr').eq(p.playerR).find('td').eq(p.playerC).addClass('bomb');
       }
       var plantBombNew = function() {
-        var newBomb = new BombObject(p.newPos.row, p.newPos.column, p.blastRadius, p, players);
-        bombsArr.push(newBomb);
-        debug = bombsArr
-        console.log('planting bomb at new block')
+        var newBomb = new BombObject(p.newPos.row, p.newPos.column, p.blastRadius, players, p.name);
         setup[p.newPos.row][p.newPos.column] = "B";
         $('tr').eq(p.newPlayerR).find('td').eq(p.newPlayerC).addClass('bomb');
       }
@@ -186,7 +211,6 @@ $(document).ready(function() {
         }
       } else plantBombOrigin();
       p.availableBombs--;
-      console.log(setup)
     }
 
     if (action == "left"){
@@ -231,8 +255,6 @@ $(document).ready(function() {
 
     if (action == "up"){
       currentBlockRockValidator = (setup[p.playerR - 1][p.playerC] !== "R" && setup[p.playerR - 1][p.playerC] !== "B");
-      console.log(setup[p.playerR - 1][p.playerC] !== "R", setup[p.playerR - 1][p.playerC] !== "B")
-      console.log(setup);
 
       if (p.playerInTransit) {
         if (p.playerTopBorder > p.blockTopBorder || p.playerTopBorder > p.newBlockTopBorder) {
@@ -283,155 +305,5 @@ $(document).ready(function() {
       }
     }
   };
-  setInterval(gameLoop, 16);
+  setInterval(gameLoop, 10);
 });
-
-    // if (action == "right"){
-
-    // }
-    // if (p.playerInTransit)
-
-    // (playerObject.newPos){ //if newPos = true
-    //   console.log("newPos")
-    //   if (action=="left"){
-    //     console.log (playerObject.originPos, playerObject.newPos)
-    //     if (playerL%40==4){
-    //       console.log("1C, removing newPos");
-    //       playerObject.originPos.column = newPlayerC;
-    //       playerObject.newPos = null;
-    //     }
-    //     if (playerC !== newPlayerC){
-    //       console.log("1D, in between columns")
-    //       // if newPos column is different, move left;
-    //       var newPos = $player.position().left - 1;
-    //       $player.css("left", newPos + "px");
-    //     }
-    //     if ((playerR !== newPlayerR) && (playerL%40!==0)){
-    //       console.log("1E, in between rows")
-    //       var newPos = $player.position().left - 1;
-    //       $player.css("left", newPos + "px");
-    //     }
-    //   }
-    //   if (action=="right"){
-    //     console.log (playerObject.originPos, playerObject.newPos)
-    //     if (playerL%40==0){
-    //       console.log("2C, removing newPos");
-    //       playerObject.originPos.row = newPlayerR;
-    //       playerObject.originPos.column = newPlayerC;
-    //       playerObject.newPos = null;
-    //     }
-    //     if (playerC !== newPlayerC){
-    //       console.log("2D, in between columns");
-    //       // if newPos column is different, move left;
-    //       var newPos = $player.position().left + 1;
-    //       $player.css("left", newPos + "px");
-    //     }
-    //     if ((playerR !== newPlayerR) && (playerL%40!==4)){
-    //       console.log("2E, in between rows");
-    //       var newPos = $player.position().left + 1;
-    //       $player.css("left", newPos + "px");
-    //     }
-    //   }
-    //   if (action=="up"){
-    //     console.log (playerObject.originPos, playerObject.newPos)
-    //     if (playerT%40==4){
-    //       console.log("3C, removing newPos");
-    //       playerObject.originPos.row = newPlayerR;
-    //       playerObject.originPos.column = newPlayerC;
-    //       playerObject.newPos = null;
-    //     }
-    //     if (playerR !== newPlayerR){
-    //       console.log("3D, in between columns");
-    //       // if newPos column is different, move left;
-    //       var newPos = $player.position().top - 1;
-    //       $player.css("top", newPos + "px");
-    //     }
-    //     if ((playerC !== newPlayerC) && (playerT%40!==0)){
-    //       console.log("3E, in between rows");
-    //       var newPos = $player.position().top - 1;
-    //       $player.css("top", newPos + "px");
-    //     }
-    //   }
-    //   if (action=="down"){
-    //     console.log (playerObject.originPos, playerObject.newPos)
-    //     if (playerT%40==0){
-    //       console.log("4C, removing newPos");
-    //       playerObject.originPos.row = newPlayerR;
-    //       playerObject.newPos = null;
-    //     }
-    //     if (playerR !== newPlayerR){
-    //       // if newPos column is different, move left;
-    //       var newPos = $player.position().top + 1;
-    //       $player.css("top", newPos + "px");
-    //     }
-    //     if ((playerC !== newPlayerC) && (playerT%40!==4)){
-    //       var newPos = $player.position().top - 1;
-    //       $player.css("top", newPos + "px");
-    //     }
-    //   }
-    // } else { //if newPos = false
-    //   console.log("no newPos")
-    //   if (action=="left"){
-    //     console.log (playerObject.originPos, playerObject.newPos)
-    //     console.log ((playerL), ((playerC * 40) + 40))
-    //     //if player's left-most position is right of (col-1) right-most position
-    //     if (((playerL)%40)!==0){
-    //       console.log("1A, fully in Pos")
-    //       var newPos = $player.position().left - 1;
-    //       $player.css("left", newPos + "px");
-    //     //if (col - 1) of player is NOT a rock,
-    //     } else if (setup[playerR][playerC-1] !== "R"){
-    //       console.log("1B, adding new Pos")
-    //       var newPos = $player.position().left - 1;
-    //       $player.css("left", newPos + "px");
-    //       addNewPos(playerObject, (playerR), (playerC-1))
-    //     }
-    //   }
-    //   if (action=="right"){
-    //     console.log ((playerL+36), ((playerC * 40) + 40))
-    //     console.log(playerObject.originPos, playerObject.newPos)
-    //     //if player's right-most position is left of its right-most position
-    //     if (((playerL+36)%40)!==0) {
-    //       console.log("2A, fully in Pos")
-    //       var newPos = $player.position().left + 1;
-    //       $player.css("left", newPos + "px");
-    //     //if (col + 1) of player is NOT a rock,
-    //     } else if (setup[playerR][playerC+1] !== "R"){
-    //       console.log("2B, adding new Pos")
-    //       var newPos = $player.position().left + 1;
-    //       $player.css("left", newPos + "px");
-    //       addNewPos(playerObject, (playerR), (playerC+1))
-    //     }
-    //   }
-    //   if (action=="up"){
-    //     console.log(playerObject.originPos, playerObject.newPos)
-    //     console.log ((playerT), ((playerC * 40) + 40))
-    //     //if player's upper-most position is below the bottom of (row-1) cell position
-    //     if (((playerT)%40)!==0){
-    //       console.log("3A, fully in Pos")
-    //       var newPos = $player.position().top - 1;
-    //       $player.css("top", newPos + "px");
-    //     //if (row - 1) of player is NOT a rock,
-    //     } else if (setup[playerR-1][playerC] !== "R") {
-    //       console.log("3B, adding new Pos")
-    //       var newPos = $player.position().top - 1;
-    //       $player.css("top", newPos + "px");
-    //       addNewPos(playerObject, (playerR-1), playerC)
-    //     }
-    //   }
-    //   if (action=="down"){
-    //     console.log ((playerT+36), ((playerR * 40)+ 40))
-    //     console.log(playerObject.originPos, playerObject.newPos)
-    //     //if player's bottom-most position is above/equal to the bottom of its cell position
-    //     if (((playerT+36)%40)!==0){
-    //       console.log("4A, fully in Pos")
-    //       var newPos = $player.position().top + 1;
-    //       $player.css("top", newPos + "px");
-    //     //if (row+1) of player is NOT a rock,
-    //     } else if (setup[playerR+1][playerC] !== "R") {
-    //       console.log("4B, adding new Pos")
-    //       var newPos = $player.position().top + 1;
-    //       $player.css("top", newPos + "px");
-    //       addNewPos(playerObject, (playerR+1), playerC);
-    //     }
-    //   }
