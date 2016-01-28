@@ -20,8 +20,22 @@ body {
   position: absolute;
   width: 26px;
   height: 26px;
-  background-color: red;
   display: block;
+}
+#player1 {
+  background-color: red;
+}
+
+#player2 {
+  background-color: blue;
+}
+
+#player3 {
+  background-color: pink;
+}
+
+#player4 {
+  background-color: green;
 }
 
 .row {
@@ -48,5 +62,9 @@ body {
 }
 
 .boom {
-  background-color: orange;
+  background-color: orange !important;
+}
+
+.wood {
+  background-color: #75603C;
 }
