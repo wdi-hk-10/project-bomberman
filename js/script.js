@@ -3,16 +3,16 @@ var gridSize   = 40;
 var playerSize = 32;
 
 var Binding = function () {
-  this["76"]  = {player: "p1", action: "left", active: false};
-  this["80"]  = {player: "p1", action: "up", active: false};
-  this["222"] = {player: "p1", action: "right", active: false};
-  this["186"] = {player: "p1", action: "down", active: false};
-  this["13"]  = {player: "p1", action: "bomb", active: false};
-  this["65"]  = {player: "p2", action: "left", active: false};
-  this["87"]  = {player: "p2", action: "up", active: false};
-  this["68"]  = {player: "p2", action: "right", active: false};
-  this["83"]  = {player: "p2", action: "down", active: false};
-  this["17"]  = {player: "p2", action: "bomb", active: false};
+  this["76"]  = {player: "p2", action: "left", active: false};
+  this["80"]  = {player: "p2", action: "up", active: false};
+  this["222"] = {player: "p2", action: "right", active: false};
+  this["186"] = {player: "p2", action: "down", active: false};
+  this["13"]  = {player: "p2", action: "bomb", active: false};
+  this["65"]  = {player: "p1", action: "left", active: false};
+  this["87"]  = {player: "p1", action: "up", active: false};
+  this["68"]  = {player: "p1", action: "right", active: false};
+  this["83"]  = {player: "p1", action: "down", active: false};
+  this["17"]  = {player: "p1", action: "bomb", active: false};
 };
 
 var BombObject = function(row, column, power, P, playerName) {
@@ -34,17 +34,31 @@ var BombObject = function(row, column, power, P, playerName) {
     // check bomb surrounding inside setup to destroy "W" but ignore "R"
   };
   this.checkPlayerPos = function (pos) {
+    // console.log (pos.row, pos.column)
     if (pos) {
+      if (this.bombRow == pos.row) {
+        for (var i = this.bombColumn - this.blastRadius; i <= (this.bombColumn+this.blastRadius); i++) {
+          if (i === pos.column) {
+            return true;
+          }
+        }
+      }
+      else if (this.bombColumn == pos.column) {
+        for (var i = this.bombRow - this.blastRadius; i <= (this.bombRow + this.blastRadius); i++) {
+          if (i === pos.row) {
+            return true;
+          }
+        }
+      }
+    } return false;
       // if row is same, check column+1, return true, vice versa
       // if (playeriswithin){
       //   return true
       // } else {
       //   return false
       // }
-    } else {
-      return false;
-    }
   };
+
   this.explode = function () {
     var bombObj = this;
     var timeout = setTimeout(function(){
