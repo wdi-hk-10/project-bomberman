@@ -18,8 +18,8 @@ body {
 
 .character {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   background-color: red;
   display: block;
 }
@@ -45,4 +45,8 @@ body {
 
 .rock {
   background-color: #4D4F4E;
+}
+
+.boom {
+  background-color: orange;
 }

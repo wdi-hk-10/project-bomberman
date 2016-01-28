@@ -1,6 +1,6 @@
 var debug;
 var gridSize   = 40;
-var playerSize = 32;
+var playerSize = 26;
 
 var Binding = function () {
   this["76"]  = {player: "p2", action: "left", active: false};
@@ -34,7 +34,6 @@ var BombObject = function(row, column, power, P, playerName) {
     // check bomb surrounding inside setup to destroy "W" but ignore "R"
   };
   this.checkPlayerPos = function (pos) {
-    // console.log (pos.row, pos.column)
     if (pos) {
       if (this.bombRow == pos.row) {
         for (var i = this.bombColumn - this.blastRadius; i <= (this.bombColumn+this.blastRadius); i++) {
@@ -51,23 +50,40 @@ var BombObject = function(row, column, power, P, playerName) {
         }
       }
     } return false;
-      // if row is same, check column+1, return true, vice versa
-      // if (playeriswithin){
-      //   return true
-      // } else {
-      //   return false
-      // }
   };
 
   this.explode = function () {
     var bombObj = this;
+    var bombAnimate = function() {
+      // add CSS class called 'boom' for rows and columns +/- blast radius
+      for (var i = bombObj.bombRow - bombObj.blastRadius; i<= (bombObj.bombRow + bombObj.blastRadius); i++) {
+        for (var j = bombObj.bombColumn - bombObj.blastRadius; j <= (bombObj.bombColumn + bombObj.blastRadius); j++){
+          if (i === bombObj.bombRow || j === bombObj.bombColumn){
+            $('tr').eq(i).find('td').eq(j).addClass('boom');
+          }
+        }
+      }
+    }
+    var removeBoom = function() {
+      for (var i = bombObj.bombRow - bombObj.blastRadius; i<= (bombObj.bombRow + bombObj.blastRadius); i++) {
+        for (var j = bombObj.bombColumn - bombObj.blastRadius; j <= (bombObj.bombColumn + bombObj.blastRadius); j++){
+          if (i === bombObj.bombRow || j === bombObj.bombColumn){
+            $('tr').eq(i).find('td').eq(j).removeClass('boom');
+          }
+        }
+      }
+    }
+      // setTimeout for length of blast image
+    // }
     var timeout = setTimeout(function(){
       bombObj.killSurrounding();
+      bombAnimate();
       $('tr').eq(bombObj.bombRow).find('td').eq(bombObj.bombColumn).removeClass('bomb');
       setup[bombObj.bombRow][bombObj.bombColumn] = null;
       P[playerName].availableBombs++;
       clearTimeout(timeout);
-    }, 3000)
+      setTimeout(removeBoom, 250);
+    }, 3000);
   };
 
   this.explode();
