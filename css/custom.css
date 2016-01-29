@@ -1,0 +1,166 @@
+body {
+  background-color: black;;
+}
+
+h1 {
+  text-align: center;
+  margin: 35px auto;
+  font-family: 'Chewy', cursive;
+  font-size: 50px;
+  color: red;
+}
+
+h2 {
+  text-align: center;
+  margin: 20px auto 30px auto;
+  color: white;
+  font-size:30px;
+  font-family: 'Handlee', cursive;
+}
+
+#title {
+  text-align: center;
+  margin: 20px auto;
+  font-family: 'Chewy', cursive;
+  font-size: 70px;
+  color: white;
+}
+
+#game-screen {
+  margin: 10px auto;
+  height: 520px;
+  width: 600px;
+}
+
+#end-screen {
+  margin: 10px auto;
+  height: 520px;
+  width: 600px;
+}
+
+.character {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  display: block;
+  border-radius: 15px;
+}
+
+#player1 {
+  background-color: red;
+}
+
+#player2 {
+  background-color: blue;
+}
+
+#player3 {
+  background-color: pink;
+}
+
+#player4 {
+  background-color: green;
+}
+
+.row {
+  background-color: #529E60;
+  padding: 0;
+  margin: 0;
+}
+
+.col {
+  background-color: #529E60;
+  width: 40px;
+  display: inline-block;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  border-spacing: 0;
+}
+
+.bomb {
+  background-color: black;
+  border-radius: 20px;
+}
+
+.rock {
+  background-color: #4D4F4E;
+}
+
+.wood {
+  background-color: #75603C;
+}
+
+.addBomb {
+  background-color: silver;
+}
+
+.addBlast {
+  background-color: yellow;
+}
+
+.btn {
+  font-family: 'Handlee', cursive;
+  margin: 10px auto;
+  text-align: center;
+}
+
+@-webkit-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@-moz-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@-o-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+
+.boom {
+  -webkit-animation: boom-effect 0.25s; /* Safari 4+ */
+  -moz-animation:    boom-effect 0.25s; /* Fx 5+ */
+  -o-animation:      boom-effect 0.25s; /* Opera 12+ */
+  animation:         boom-effect 0.25s; /* IE 10+, Fx 29+ */
+}
