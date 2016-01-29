@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Bomberblocks by Sean Ng</title>
+    <link href='https://fonts.googleapis.com/css?family=Chewy|Handlee' rel='stylesheet' type='text/css'>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+    <script src="js/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+  </head>
+  <body>
+    <section id="title">Bomberblocks Free For All</section>
+    <section id="game-screen">
+      <table>
+        <tr data-row="0" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col rock"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col rock"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col rock"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col rock"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col rock"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col rock"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col rock"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="1" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col">
+            <div class="character" id="player1">
+            </div>
+          </td>
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col"></td>
+            <!-- <div class="character" id="player3"> -->
+            </div>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="2" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="3" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="4" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="5" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="6" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="7" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="8" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="9" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="10" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="11" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col"></td>
+            <!-- <div class="character" id="player2"></div> -->
+          <td data-column="2" class = "col"></td>
+          <td data-column="3" class = "col"></td>
+          <td data-column="4" class = "col"></td>
+          <td data-column="5" class = "col"></td>
+          <td data-column="6" class = "col"></td>
+          <td data-column="7" class = "col"></td>
+          <td data-column="8" class = "col"></td>
+          <td data-column="9" class = "col"></td>
+          <td data-column="10" class = "col"></td>
+          <td data-column="11" class = "col"></td>
+          <td data-column="12" class = "col"></td>
+          <td data-column="13" class = "col">
+            <div class="character" id="player4"></div>
+          </td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+        <tr data-row="12" class="row">
+          <td data-column="0" class = "col rock"></td>
+          <td data-column="1" class = "col rock"></td>
+          <td data-column="2" class = "col rock"></td>
+          <td data-column="3" class = "col rock"></td>
+          <td data-column="4" class = "col rock"></td>
+          <td data-column="5" class = "col rock"></td>
+          <td data-column="6" class = "col rock"></td>
+          <td data-column="7" class = "col rock"></td>
+          <td data-column="8" class = "col rock"></td>
+          <td data-column="9" class = "col rock"></td>
+          <td data-column="10" class = "col rock"></td>
+          <td data-column="11" class = "col rock"></td>
+          <td data-column="12" class = "col rock"></td>
+          <td data-column="13" class = "col rock"></td>
+          <td data-column="14" class = "col rock"></td>
+        </tr>
+      </table>
+    </section>
+    <section id="end-screen" style="display: none">
+      </br>
+      </br>
+      <h1>GAME OVER!</h1>
+
+      </br>
+      <button type="button" class="btn btn-primary btn-lg center-block" id="replay"><h2>Play again</h2></button>
+      </br>
+      </br>
+
+    </section>
+  </body>
+</html>
