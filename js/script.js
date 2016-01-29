@@ -39,33 +39,31 @@ var PlayerConstructor = function(name, elem, row, column) {
     column: column
   },
   this.newPos = null,
-  this.availableBombs = 3,
-  this.blastRadius = 2,
+  this.availableBombs = 1,
+  this.blastRadius = 1,
   this.alive = true
 }
 
-var CellConstructor = function(obstacle, item){
+var CellConstructor = function(obstacle, item, row, column){
   this.obstacle = obstacle;
-  this.item = item;
+  this.item = item || null; // no longer object, just a string of the item name
   this.bombObj = null;
 };
 
-var items = [{
-    name: "add bomb",
-    player: null,
-    ability: function() {
-      var pName = this[0].player;
-      players.pName.availableBombs++;
+var items = {
+  addBomb: {
+    addClass: 'addBomb',
+    ability: function(p) {
+      p.availableBombs++;
     }
-  }, {
-    name: "add power",
-    player: null,
-    ability: function() {
-      var pName = this[1].player;
-      players.pName.blastRadius++;
+  },
+  addBlast: {
+    addClass: 'addBlast',
+    ability: function(p) {
+      p.blastRadius++;
     }
   }
-];
+};
 
 var BombConstructor = function(row, column, power, P, playerName) {
   this.blastRadius = power;
@@ -144,6 +142,11 @@ var BombConstructor = function(row, column, power, P, playerName) {
 
         $newElem.removeClass('wood').addClass('boom');
 
+        if (setup[row][column].item) {
+          var itemName = setup[row][column].item
+          $newElem.addClass(items[itemName].addClass);
+        }
+
         setup[row][column].obstacle = "E";
         return continueDirection;
       } else {
@@ -174,7 +177,7 @@ var BombConstructor = function(row, column, power, P, playerName) {
       bombObj.killSurroundingAndAnimate();
 
       clearTimeout(bombObj.timeout);
-    }, 2000);
+    }, 2500);
   };
 
   this.activateBomb();
@@ -204,21 +207,11 @@ var setup;
 
 $(document).ready(function() {
   // Variables
+  var players = {};
   var gameLoopInterval;
   var gameOverScreen = false;
-
-  $('#replay').on("click", function () {
-    $('#game-screen').show();
-    $('#end-screen').hide();
-    $('#title').show();
-    $('#player1, #player4').show().removeAttr('style');
-    $('.boom').removeClass('boom');
-    killCount = 0;
-    gameOverScreen = false;
-    init();
-  })
-
   var bindings = new Binding;
+
   var world = function(){
     for (var i = 0; i < setup.length; i++) {
       for (var j = 0; j < setup[i].length; j++) {
@@ -227,14 +220,17 @@ $(document).ready(function() {
         } else if (setup[i][j] == 'E') {
           setup[i][j] = new CellConstructor('E')
         } else if (setup[i][j] == 'A') {
-          var includeObstacle = Math.random();
-          var obstacle = includeObstacle < 0.9 ? 'W' : 'E';
-          var includeItem = Math.random();
-          var item = obstacle && includeItem < 0.6 ? items[Math.floor((Math.random() * items.length))] : null;
+          var randomizeObstacle = Math.random();
+          var obstacle = randomizeObstacle < 0.75 ? 'W' : 'E';
+          var randomizeItem = Math.random();
+          var availableItems = Object.keys(items); // ['addBomb', 'addBlast']
+          var itemName = availableItems[Math.floor((Math.random() * availableItems.length))];
+          var item = obstacle && randomizeItem < 0.2 ? itemName : null;
           setup[i][j] = new CellConstructor(obstacle, item);
         }
       }
     }
+    console.log(setup)
   }
 
   var populateHTML = function () {
@@ -250,43 +246,6 @@ $(document).ready(function() {
       }
     }
   }
-
-
-  var players = {
-
-    // p2: {
-    //   name: 'p2',
-    //   elem: $('#player2'),
-    //   defaultTop: $('#player2').position().top,
-    //   defaultLeft: $('#player2').position().left,
-    //   defaultOffsetTop: gridSize * 11,
-    //   defaultOffsetLeft: gridSize * 1,
-    //   originPos: {
-    //     row: 11,
-    //     column: 1
-    //   },
-    //   newPos: null,
-    //   availableBombs: 1,
-    //   blastRadius: 1,
-    //   alive: true
-    // },
-    // p3: {
-    //   name: 'p3',
-    //   elem: $('#player3'),
-    //   defaultTop: $('#player3').position().top,
-    //   defaultLeft: $('#player3').position().left,
-    //   defaultOffsetTop: gridSize * 1,
-    //   defaultOffsetLeft: gridSize * 13,
-    //   originPos: {
-    //     row: 1,
-    //     column: 13
-    //   },
-    //   newPos: null,
-    //   availableBombs: 1,
-    //   blastRadius: 1,
-    //   alive: true
-    // },
-  };
 
   var bindKeyDown = function () {
     $(document).on("keydown", function(event) {
@@ -363,6 +322,11 @@ $(document).ready(function() {
   var movePlayer = function (p, action) {
     updatePlayerPos(p);
 
+    if (!p.newPos){
+      var hasItem = setup[p.playerR][p.playerC].item ? true : false ;
+      var itemName = hasItem ? setup[p.playerR][p.playerC].item : null;
+    }
+
     var bombPlantLocation = function(){
       if (p.newPlayerC!==p.playerC) {
         if (Math.abs(p.playerLeftBorder - p.blockRightBorder) > Math.abs(p.playerLeftBorder - p.blockLeftBorder)) {
@@ -379,7 +343,7 @@ $(document).ready(function() {
       } else return p.playerOrigin.obstacle;
     }
 
-    if (action =="bomb" && p.availableBombs > 0 && bombPlantLocation()!=="B"){
+    if (action == "bomb" && p.availableBombs > 0 && bombPlantLocation()!=="B"){
       var plantBombOrigin = function() {
         var newBomb = new BombConstructor(p.originPos.row, p.originPos.column, p.blastRadius, players, p.name);
         setup[p.originPos.row][p.originPos.column].obstacle = "B";
@@ -409,15 +373,27 @@ $(document).ready(function() {
       p.availableBombs--;
     }
 
+    if (p.playerInTransit && setup[p.newPlayerR][p.newPlayerC].item){
+
+
+      if (Math.abs(p.playerTopBorder - p.blockBotBorder) > Math.abs(p.playerTopBorder - p.blockTopBorder)) {
+
+      }
+    }
+
     if (action == "left"){
       currentBlockRockValidator = setup[p.playerR][p.playerC - 1].obstacle == 'E';
-
       if (p.playerInTransit) {
         if (p.playerLeftBorder > p.blockLeftBorder || p.playerLeftBorder > p.newBlockLeftBorder) {
           updatePlayerPos(p, "left", p.playerWindowX - 1);
           checkTransition(p);
         }
       } else {
+        if (hasItem) {
+          setup[p.playerR][p.playerC].item = null;
+          items[itemName].ability(p);
+          $('tr').eq(p.playerR).find('td').eq(p.playerC).attr("class", "col")
+        }
         if (p.playerLeftBorder > p.blockLeftBorder) {
           updatePlayerPos(p, "left", p.playerWindowX - 1);
         }
@@ -431,13 +407,17 @@ $(document).ready(function() {
 
     if (action == "right"){
       currentBlockRockValidator = setup[p.playerR][p.playerC + 1].obstacle == 'E';
-
       if (p.playerInTransit) {
         if (p.playerRightBorder < p.blockRightBorder || p.playerRightBorder < p.newBlockRightBorder) {
           updatePlayerPos(p, "left", p.playerWindowX + 1);
           checkTransition(p);
         }
       } else {
+        if (hasItem) {
+          setup[p.playerR][p.playerC].item = null;
+          items[itemName].ability(p);
+          $('tr').eq(p.playerR).find('td').eq(p.playerC).attr("class", "col")
+        }
         if (p.playerRightBorder < p.blockRightBorder){
           updatePlayerPos(p, "left", p.playerWindowX + 1);
         }
@@ -451,13 +431,17 @@ $(document).ready(function() {
 
     if (action == "up"){
       currentBlockRockValidator = setup[p.playerR - 1][p.playerC].obstacle == 'E';
-      console.log ()
       if (p.playerInTransit) {
         if (p.playerTopBorder > p.blockTopBorder || p.playerTopBorder > p.newBlockTopBorder) {
           updatePlayerPos(p, "top", p.playerWindowY - 1);
           checkTransition(p);
         }
       } else {
+        if (hasItem) {
+          setup[p.playerR][p.playerC].item = null;
+          items[itemName].ability(p);
+          $('tr').eq(p.playerR).find('td').eq(p.playerC).attr("class", "col")
+        }
         if (p.playerTopBorder > p.blockTopBorder){
           updatePlayerPos(p, "top", p.playerWindowY - 1);
         }
@@ -471,13 +455,17 @@ $(document).ready(function() {
 
     if (action == "down"){
       currentBlockRockValidator = setup[p.playerR + 1][p.playerC].obstacle == 'E';
-
       if (p.playerInTransit) {
         if (p.playerBotBorder < p.blockBotBorder || p.playerBotBorder < p.newBlockBotBorder) {
           updatePlayerPos(p, "top", p.playerWindowY + 1);
           checkTransition(p);
         }
       } else {
+        if (hasItem) {
+          setup[p.playerR][p.playerC].item = null;
+          items[itemName].ability(p);
+          $('tr').eq(p.playerR).find('td').eq(p.playerC).attr("class", "col")
+        }
         if (p.playerBotBorder < p.blockBotBorder){
           updatePlayerPos(p, "top", p.playerWindowY + 1);
         }
@@ -488,6 +476,19 @@ $(document).ready(function() {
         }
       }
     }
+  };
+
+  var bindReplay = function () {
+    $('#replay').on("click", function () {
+      $('#game-screen').show();
+      $('#end-screen').hide();
+      $('#title').show();
+      $('#player1, #player4').show().removeAttr('style');
+      $('.boom').removeClass('boom');
+      killCount = 0;
+      gameOverScreen = false;
+      reset();
+    });
   };
 
   var gameOver = function(){
@@ -521,6 +522,15 @@ $(document).ready(function() {
     players.p4 = new PlayerConstructor('p4', $('#player4'), 11, 13);
   }
 
+  var reset = function () {
+    setup = (new Setup).map;
+    world();
+    populateHTML();
+    createPlayer()
+    if (gameLoopInterval) { clearInterval(gameLoopInterval) }
+    gameLoopInterval = setInterval(gameLoop, 10);
+  };
+
   var init = function () {
     setup = (new Setup).map;
     world();
@@ -528,8 +538,10 @@ $(document).ready(function() {
     createPlayer()
     bindKeyDown();
     bindKeyUp();
+    bindReplay();
     if (gameLoopInterval) { clearInterval(gameLoopInterval) }
     gameLoopInterval = setInterval(gameLoop, 10);
   };
+
   init();
 });

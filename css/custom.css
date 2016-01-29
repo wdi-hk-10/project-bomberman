@@ -1,5 +1,5 @@
 body {
-  background: black;
+  background-color: black;;
 }
 
 h1 {
@@ -43,7 +43,9 @@ h2 {
   width: 26px;
   height: 26px;
   display: block;
+  border-radius: 15px;
 }
+
 #player1 {
   background-color: red;
 }
@@ -61,6 +63,7 @@ h2 {
 }
 
 .row {
+  background-color: #529E60;
   padding: 0;
   margin: 0;
 }
@@ -77,6 +80,7 @@ h2 {
 
 .bomb {
   background-color: black;
+  border-radius: 20px;
 }
 
 .rock {
@@ -85,6 +89,14 @@ h2 {
 
 .wood {
   background-color: #75603C;
+}
+
+.addBomb {
+  background-color: silver;
+}
+
+.addBlast {
+  background-color: yellow;
 }
 
 .btn {
