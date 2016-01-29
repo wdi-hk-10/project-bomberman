@@ -1,19 +1,48 @@
 var debug;
 var gridSize   = 40;
 var playerSize = 26;
+var winCondition = 1;
+var killCount = 0;
 
 var Binding = function () {
-  this["76"]  = {player: "p2", action: "left", active: false};
-  this["80"]  = {player: "p2", action: "up", active: false};
-  this["222"] = {player: "p2", action: "right", active: false};
-  this["186"] = {player: "p2", action: "down", active: false};
-  this["13"]  = {player: "p2", action: "bomb", active: false};
   this["65"]  = {player: "p1", action: "left", active: false};
   this["87"]  = {player: "p1", action: "up", active: false};
   this["68"]  = {player: "p1", action: "right", active: false};
   this["83"]  = {player: "p1", action: "down", active: false};
   this["17"]  = {player: "p1", action: "bomb", active: false};
+  this["70"]  = {player: "p2", action: "left", active: false};
+  this["84"]  = {player: "p2", action: "up", active: false};
+  this["72"] = {player: "p2", action: "right", active: false};
+  this["71"] = {player: "p2", action: "down", active: false};
+  this["32"]  = {player: "p2", action: "bomb", active: false};
+  this["74"]  = {player: "p3", action: "left", active: false};
+  this["73"]  = {player: "p3", action: "up", active: false};
+  this["76"] = {player: "p3", action: "right", active: false};
+  this["75"] = {player: "p3", action: "down", active: false};
+  this["18"]  = {player: "p3", action: "bomb", active: false};
+  this["186"]  = {player: "p4", action: "left", active: false};
+  this["219"]  = {player: "p4", action: "up", active: false};
+  this["13"] = {player: "p4", action: "right", active: false};
+  this["222"] = {player: "p4", action: "down", active: false};
+  this["191"]  = {player: "p4", action: "bomb", active: false};
 };
+
+var PlayerConstructor = function(name, elem, row, column) {
+  this.name = name,
+  this.elem = elem,
+  this.defaultTop = elem.position().top,
+  this.defaultLeft = elem.position().left,
+  this.defaultOffsetTop = (gridSize * row),
+  this.defaultOffsetLeft = (gridSize * column),
+  this.originPos = {
+    row: row,
+    column: column
+  },
+  this.newPos = null,
+  this.availableBombs = 3,
+  this.blastRadius = 2,
+  this.alive = true
+}
 
 var CellConstructor = function(obstacle, item){
   this.obstacle = obstacle;
@@ -21,11 +50,19 @@ var CellConstructor = function(obstacle, item){
 };
 
 var items = [{
-    name: "A",
-    ability: ""
+    name: "add bomb",
+    player: null,
+    ability: function() {
+      var pName = this[0].player;
+      players.pName.availableBombs++;
+    }
   }, {
-    name: "B",
-    ability: ""
+    name: "add power",
+    player: null,
+    ability: function() {
+      var pName = this[1].player;
+      players.pName.blastRadius++;
+    }
   }
 ];
 
@@ -33,106 +70,138 @@ var BombConstructor = function(row, column, power, P, playerName) {
   this.blastRadius = power;
   this.bombRow = row;
   this.bombColumn = column;
-  this.killSurrounding = function () {
+
+  this.killSurroundingAndAnimate = function () {
     // check the P to see whether the player original and new position is within the blast zone
-    for (var key in P) {
-      var killPlayer = this.checkPlayerPos(P[key].originPos) || this.checkPlayerPos(P[key].newPos) || false;
-      if (killPlayer){
-        // add animation for background using jquery...
-        // when animation is complete
-        // remove player element
-        P[key].elem.remove();
-        // end game
-      }
-    }
-    for (var setup[this.bombRow][this.bombColumn].obstacle in this.checkPlayerPos) {
-      if (setup[this.bombRow][this.bombColumn].obstacle == 'W') {
-        setup[row][column].obstacle == 'E';
-        $('tr').eq(row).find('td').eq(column).removeClass('wood');
-      }
-    }
-    // check bomb surrounding inside setup to destroy "W" but ignore "R"
 
+    var checkNorth = true;
+    var checkEast  = true;
+    var checkSouth = true;
+    var checkWest  = true;
+
+    $('tr').eq(this.bombRow).find('td').eq(this.bombColumn).addClass('boom');
+    this.killPlayer(this.bombRow, this.bombColumn)
+
+    for (var i=1; i <= this.blastRadius; i++) {
+      var north = this.bombRow + i;
+      var east  = this.bombColumn + i;
+      var south = this.bombRow - i;
+      var west  = this.bombColumn - i;
+
+      checkNorth = this.checkObstacle(north       , this.bombColumn, checkNorth);
+      checkEast  = this.checkObstacle(this.bombRow, east           , checkEast);
+      checkSouth = this.checkObstacle(south       , this.bombColumn, checkSouth);
+      checkWest  = this.checkObstacle(this.bombRow, west           , checkWest);
+    }
   };
-  this.checkPlayerPos = function (pos) {
+
+  this.checkPlayerPos = function (pos, row, column) {
     if (pos) {
-      if (this.bombRow == pos.row) {
-        for (var i = this.bombColumn - this.blastRadius; i <= (this.bombColumn+this.blastRadius); i++) {
-          if (i === pos.column) {
-            return true;
-          }
-        }
+      if (pos.row == row && pos.column == column){
+        return true;
+      } else {
+        return false;
       }
-      else if (this.bombColumn == pos.column) {
-        for (var i = this.bombRow - this.blastRadius; i <= (this.bombRow + this.blastRadius); i++) {
-          if (i === pos.row) {
-            return true;
-          }
-        }
-      }
-    } return false;
+    }
+    return false;
   };
 
-  this.explode = function () {
+  this.killPlayer = function (row, column) {
+    for (var key in P) {
+      var playerDetected = this.checkPlayerPos(P[key].originPos, row, column) || this.checkPlayerPos(P[key].newPos, row, column) || false;
+      if (playerDetected && P[key].alive){
+        P[key].elem.hide();
+        P[key].alive = false;
+        killCount++;
+      }
+    }
+  }
+
+  this.checkObstacle = function (row, column, continueDirection) {
+    if (0 <= row && row <= 12 && 0 <= column && column <= 14){
+      if (setup[row][column].obstacle !== "R" && continueDirection){
+        if (continueDirection){
+          this.killPlayer(row, column);
+        }
+
+        continueDirection = setup[row][column].obstacle == "W" ? false : true ;
+
+        var $cellElem = $('tr').eq(row).find('td').eq(column);
+        var $playerElem = $cellElem.find('.character').length != 0 ? $cellElem.find('.character') : null ;
+        var $newElem = $cellElem.clone(true);
+
+        if ($playerElem) {
+          $newElem.find('.character').remove();
+          $newElem.append($playerElem);
+        }
+        $cellElem.before($newElem);
+        $cellElem.remove();
+
+        $newElem.removeClass('wood').addClass('boom');
+
+        setup[row][column].obstacle = "E";
+        return continueDirection;
+      } else {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  this.activateBomb = function () {
     var bombObj = this;
-    var bombAnimate = function() {
-      // add CSS class called 'boom' for rows and columns +/- blast radius
-      for (var i = bombObj.bombRow - bombObj.blastRadius; i<= (bombObj.bombRow + bombObj.blastRadius); i++) {
-        for (var j = bombObj.bombColumn - bombObj.blastRadius; j <= (bombObj.bombColumn + bombObj.blastRadius); j++){
-          if ((i === bombObj.bombRow || j === bombObj.bombColumn) && setup[i]!==undefined && setup[i][j]!==undefined && setup[i][j].obstacle!=='R') {
-            $('tr').eq(i).find('td').eq(j).addClass('boom');
-          }
-        }
-      }
-    }
-    var removeBoom = function() {
-      for (var i = bombObj.bombRow - bombObj.blastRadius; i<= (bombObj.bombRow + bombObj.blastRadius); i++) {
-        for (var j = bombObj.bombColumn - bombObj.blastRadius; j <= (bombObj.bombColumn + bombObj.blastRadius); j++){
-          if (i === bombObj.bombRow || j === bombObj.bombColumn) {
-            $('tr').eq(i).find('td').eq(j).removeClass('boom');
-          }
-        }
-      }
-    }
-      // setTimeout for length of blast image
-    // }
+
     var timeout = setTimeout(function(){
-      bombObj.killSurrounding();
-      bombAnimate();
       $('tr').eq(bombObj.bombRow).find('td').eq(bombObj.bombColumn).removeClass('bomb');
       setup[bombObj.bombRow][bombObj.bombColumn].obstacle = 'E';
       P[playerName].availableBombs++;
+
+      bombObj.killSurroundingAndAnimate();
+
       clearTimeout(timeout);
-      setTimeout(removeBoom, 250);
-    }, 3000);
+    }, 2000);
   };
 
-  this.explode();
+  this.activateBomb();
 };
 
-var setup = [
-  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
-  ['R','E','E','A','A','A','A','A','A','A','A','A','E','E','R'],
-  ['R','E','R','A','R','A','R','A','R','A','R','A','R','E','R'],
-  ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
-  ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
-  ['R','A','A','W','A','A','A','A','A','A','A','A','A','A','R'],
-  ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
-  ['R','A','A','A','A','W','A','A','A','A','A','A','A','A','R'],
-  ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
-  ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
-  ['R','E','R','A','R','A','R','A','R','A','R','A','R','E','R'],
-  ['R','E','E','A','A','A','A','A','A','A','A','A','E','E','R'],
-  ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R']
-];
+var Setup = function() {
+  this.map = [
+    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R'],
+    ['R','E','E','A','A','A','A','A','A','A','A','A','E','E','R'],
+    ['R','E','R','A','R','A','R','A','R','A','R','A','R','E','R'],
+    ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
+    ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
+    ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
+    ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
+    ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
+    ['R','A','R','A','R','A','R','A','R','A','R','A','R','A','R'],
+    ['R','A','A','A','A','A','A','A','A','A','A','A','A','A','R'],
+    ['R','E','R','A','R','A','R','A','R','A','R','A','R','E','R'],
+    ['R','E','E','A','A','A','A','A','A','A','A','A','E','E','R'],
+    ['R','R','R','R','R','R','R','R','R','R','R','R','R','R','R']
+  ];
+};
 
+var setup;
 
 // create a loop that scans
 
 $(document).ready(function() {
   // Variables
-  var bindings = new Binding;
+  var gameLoopInterval;
 
+  $('#replay').on("click", function () {
+    $('#game-screen').show();
+    $('#end-screen').hide();
+    $('#title').show();
+    $('#player1, #player4').show().removeAttr('style');
+    killCount = 0;
+    init();
+  })
+
+  var bindings = new Binding;
   var world = function(){
     for (var i = 0; i < setup.length; i++) {
       for (var j = 0; j < setup[i].length; j++) {
@@ -163,40 +232,43 @@ $(document).ready(function() {
         // }
       }
     }
-
   }
 
+
   var players = {
-    p1: {
-      name: 'p1',
-      elem: $('#player1'),
-      defaultTop: $('#player1').position().top,
-      defaultLeft: $('#player1').position().left,
-      defaultOffsetTop: gridSize,
-      defaultOffsetLeft: gridSize,
-      originPos: {
-        row: 1,
-        column: 1
-      },
-      newPos: null,
-      availableBombs: 3,
-      blastRadius: 2
-    },
-    p2: {
-      name: 'p2',
-      elem: $('#player2'),
-      defaultTop: $('#player2').position().top,
-      defaultLeft: $('#player2').position().left,
-      defaultOffsetTop: gridSize * 11,
-      defaultOffsetLeft: gridSize * 13,
-      originPos: {
-        row: 11,
-        column: 13
-      },
-      newPos: null,
-      availableBombs: 1,
-      blastRadius: 1
-    }
+
+    // p2: {
+    //   name: 'p2',
+    //   elem: $('#player2'),
+    //   defaultTop: $('#player2').position().top,
+    //   defaultLeft: $('#player2').position().left,
+    //   defaultOffsetTop: gridSize * 11,
+    //   defaultOffsetLeft: gridSize * 1,
+    //   originPos: {
+    //     row: 11,
+    //     column: 1
+    //   },
+    //   newPos: null,
+    //   availableBombs: 1,
+    //   blastRadius: 1,
+    //   alive: true
+    // },
+    // p3: {
+    //   name: 'p3',
+    //   elem: $('#player3'),
+    //   defaultTop: $('#player3').position().top,
+    //   defaultLeft: $('#player3').position().left,
+    //   defaultOffsetTop: gridSize * 1,
+    //   defaultOffsetLeft: gridSize * 13,
+    //   originPos: {
+    //     row: 1,
+    //     column: 13
+    //   },
+    //   newPos: null,
+    //   availableBombs: 1,
+    //   blastRadius: 1,
+    //   alive: true
+    // },
   };
 
   var bindKeyDown = function () {
@@ -291,7 +363,6 @@ $(document).ready(function() {
     }
 
     if (action =="bomb" && p.availableBombs > 0 && bombPlantLocation()!=="B"){
-
       var plantBombOrigin = function() {
         var newBomb = new BombConstructor(p.originPos.row, p.originPos.column, p.blastRadius, players, p.name);
         setup[p.originPos.row][p.originPos.column].obstacle = "B";
@@ -317,7 +388,6 @@ $(document).ready(function() {
         }
       } else plantBombOrigin();
       p.availableBombs--;
-      console.log (p.availableBombs);
     }
 
     if (action == "left"){
@@ -362,7 +432,7 @@ $(document).ready(function() {
 
     if (action == "up"){
       currentBlockRockValidator = setup[p.playerR - 1][p.playerC].obstacle == 'E';
-
+      console.log ()
       if (p.playerInTransit) {
         if (p.playerTopBorder > p.blockTopBorder || p.playerTopBorder > p.newBlockTopBorder) {
           updatePlayerPos(p, "top", p.playerWindowY - 1);
@@ -401,7 +471,20 @@ $(document).ready(function() {
     }
   };
 
+  var gameOver = function(){
+    $('#game-screen').hide();
+    $('#end-screen').show();
+    $('#title').hide();
+  };
+
+  var checkWinCondition = function(){
+    if (killCount >= winCondition) {
+      gameOver();
+    }
+  };
+
   var gameLoop = function () {
+    checkWinCondition();
     for (var key in bindings) {
       var playerName   = bindings[key].player;
       var playerObject = players[playerName];
@@ -413,14 +496,20 @@ $(document).ready(function() {
     }
   };
 
+  var createPlayer = function () {
+    players.p1 = new PlayerConstructor('p1', $('#player1'), 1, 1);
+    players.p4 = new PlayerConstructor('p4', $('#player4'), 11, 13);
+  }
+
   var init = function () {
+    setup = (new Setup).map;
     world();
     populateHTML();
+    createPlayer()
     bindKeyDown();
     bindKeyUp();
-
-    setInterval(gameLoop, 10);
+    if (gameLoopInterval) { clearInterval(gameLoopInterval) }
+    gameLoopInterval = setInterval(gameLoop, 10);
   };
-
   init();
 });

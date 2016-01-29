@@ -2,15 +2,37 @@ body {
   background: black;
 }
 
+h1 {
+  text-align: center;
+  margin: 35px auto;
+  font-family: 'Chewy', cursive;
+  font-size: 50px;
+  color: red;
+}
+
+h2 {
+  text-align: center;
+  margin: 20px auto 30px auto;
+  color: white;
+  font-size:30px;
+  font-family: 'Handlee', cursive;
+}
+
 #title {
   text-align: center;
   margin: 20px auto;
   font-family: 'Chewy', cursive;
-  font-size: 50px;
+  font-size: 70px;
   color: white;
 }
 
 #game-screen {
+  margin: 10px auto;
+  height: 520px;
+  width: 600px;
+}
+
+#end-screen {
   margin: 10px auto;
   height: 520px;
   width: 600px;
@@ -61,10 +83,72 @@ body {
   background-color: #4D4F4E;
 }
 
-.boom {
-  background-color: orange !important;
-}
-
 .wood {
   background-color: #75603C;
+}
+
+.btn {
+  font-family: 'Handlee', cursive;
+  margin: 10px auto;
+  text-align: center;
+}
+
+@-webkit-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@-moz-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@-o-keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+@keyframes boom-effect {
+  0%   { background-color: orange; }
+  10%   { background-color: white; }
+  20%   { background-color: orange; }
+  30%   { background-color: white; }
+  40%   { background-color: orange; }
+  50%   { background-color: white; }
+  60%   { background-color: orange; }
+  70%   { background-color: white; }
+  80%   { background-color: orange; }
+  90%   { background-color: white; }
+  100%  { background-color: orange; }
+}
+
+.boom {
+  -webkit-animation: boom-effect 0.25s; /* Safari 4+ */
+  -moz-animation:    boom-effect 0.25s; /* Fx 5+ */
+  -o-animation:      boom-effect 0.25s; /* Opera 12+ */
+  animation:         boom-effect 0.25s; /* IE 10+, Fx 29+ */
 }
