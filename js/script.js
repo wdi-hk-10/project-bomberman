@@ -47,6 +47,7 @@ var PlayerConstructor = function(name, elem, row, column) {
 var CellConstructor = function(obstacle, item){
   this.obstacle = obstacle;
   this.item = item;
+  this.bombObj = null;
 };
 
 var items = [{
@@ -126,6 +127,10 @@ var BombConstructor = function(row, column, power, P, playerName) {
 
         continueDirection = setup[row][column].obstacle == "W" ? false : true ;
 
+        if (setup[row][column].obstacle == "B") {
+          setup[row][column].bombObj.activateNow();
+        }
+
         var $cellElem = $('tr').eq(row).find('td').eq(column);
         var $playerElem = $cellElem.find('.character').length != 0 ? $cellElem.find('.character') : null ;
         var $newElem = $cellElem.clone(true);
@@ -149,17 +154,26 @@ var BombConstructor = function(row, column, power, P, playerName) {
     return false;
   }
 
+  this.activateNow = function() {
+    $('tr').eq(this.bombRow).find('td').eq(this.bombColumn).removeClass('bomb');
+    setup[this.bombRow][this.bombColumn].obstacle = 'E';
+    P[playerName].availableBombs++;
+    this.killSurroundingAndAnimate();
+    clearTimeout(this.timeout);
+    setup[this.bombRow][this.bombColumn].bombObj = null;
+  }
+
   this.activateBomb = function () {
     var bombObj = this;
 
-    var timeout = setTimeout(function(){
+    bombObj.timeout = setTimeout(function(){
       $('tr').eq(bombObj.bombRow).find('td').eq(bombObj.bombColumn).removeClass('bomb');
       setup[bombObj.bombRow][bombObj.bombColumn].obstacle = 'E';
       P[playerName].availableBombs++;
 
       bombObj.killSurroundingAndAnimate();
 
-      clearTimeout(timeout);
+      clearTimeout(bombObj.timeout);
     }, 2000);
   };
 
@@ -191,13 +205,16 @@ var setup;
 $(document).ready(function() {
   // Variables
   var gameLoopInterval;
+  var gameOverScreen = false;
 
   $('#replay').on("click", function () {
     $('#game-screen').show();
     $('#end-screen').hide();
     $('#title').show();
     $('#player1, #player4').show().removeAttr('style');
+    $('.boom').removeClass('boom');
     killCount = 0;
+    gameOverScreen = false;
     init();
   })
 
@@ -366,11 +383,13 @@ $(document).ready(function() {
       var plantBombOrigin = function() {
         var newBomb = new BombConstructor(p.originPos.row, p.originPos.column, p.blastRadius, players, p.name);
         setup[p.originPos.row][p.originPos.column].obstacle = "B";
+        setup[p.originPos.row][p.originPos.column].bombObj = newBomb;
         $('tr').eq(p.playerR).find('td').eq(p.playerC).addClass('bomb');
       }
       var plantBombNew = function() {
         var newBomb = new BombConstructor(p.newPos.row, p.newPos.column, p.blastRadius, players, p.name);
         setup[p.newPlayerR][p.newPlayerC].obstacle = "B";
+        setup[p.newPlayerR][p.newPlayerC].obstacle = newBomb;
         $('tr').eq(p.newPlayerR).find('td').eq(p.newPlayerC).addClass('bomb');
       }
 
@@ -478,8 +497,9 @@ $(document).ready(function() {
   };
 
   var checkWinCondition = function(){
-    if (killCount >= winCondition) {
-      gameOver();
+    if (killCount >= winCondition && !gameOverScreen) {
+      gameOverScreen = true;
+      setTimeout(gameOver, 500);
     }
   };
 
